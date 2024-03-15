@@ -52,7 +52,7 @@ def get_embedding(model_tf, img_path=""):
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
     input_pic = load_img(file_path=img_path)
-    print("INPUT_SHAPE ALLOWED for model:", input_shape)
+    # print("INPUT_SHAPE ALLOWED for model:", input_shape)
     input_data = input_pic
     # input_data = np.array(np.random.random_sample(input_shape), dtype=np.float32)
     model_tf.set_tensor(input_details[0]['index'], input_data)
@@ -69,13 +69,26 @@ def get_embedding(model_tf, img_path=""):
 
 if __name__ == "__main__":
     interpreter = tf.lite.Interpreter(model_path="mobilenet/mobilefacenet.tflite")
-    female1_pic1_path = "./pics/male1-pic1.png"
+    female1_pic1_path = "./pics/female1-pic1.png"
     embedding_1 = get_embedding(model_tf=interpreter, img_path=female1_pic1_path)
     female1_pic2_path = "./pics/male1-pic2.png" 
     embedding_2 = get_embedding(model_tf=interpreter, img_path=female1_pic2_path)
-    cos_sim_tf = tf_cosine_similarity(embedding_1=embedding_1, embedding_2=embedding_2)
-    print(cos_sim_tf)
+    import time
+    start = time.time()
+    # cos_sim_tf = tf_cosine_similarity(embedding_1=embedding_1, embedding_2=embedding_2)
+    # end = time.time()
+    # print("time taken for tf for cos sim:", end-start)
+    # tf_time_taken = end-start
+    # start = time.time()
     cos_sim_calc = calc_cosine_similarity(embedding_1=embedding_1, embedding_2=embedding_2)
+    # end = time.time()
+    # print("time taken for manual function for cos sim:", end-start)
+    # manual_time_taken = end-start
+
+    # factor = tf_time_taken/manual_time_taken
+    # print("speed optimization factor after using manual:", round(factor,3))
+    print("COSINE SIMILARITY:", cos_sim_calc)
+    
     #This if else goes inside React Native code
     if cos_sim_calc > 0.6:
         print("Authentication Successful")
