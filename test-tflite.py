@@ -1,7 +1,27 @@
 import tensorflow as tf
 import cv2
-
+import math
 import numpy as np
+def tf_cosine_similarity(embedding_1, embedding_2):
+    cosine_similarity_loss = tf.keras.losses.CosineSimilarity(axis=1)
+    cosine_similarity = -1 * cosine_similarity_loss(embedding_1, embedding_2).numpy()
+    return round(cosine_similarity,3)
+
+def calc_cosine_similarity(embedding_1, embedding_2):
+    A = embedding_1[0]
+    B = embedding_2[0]
+    dot_product = 0 
+    m_A = 0
+    m_B = 0
+    for idx, val in enumerate(A):
+        dot_product += A[idx] * B[idx]
+        m_A += A[idx] * A[idx]
+        m_B += B[idx] * B[idx]
+    m_A = math.sqrt(m_A)
+    m_B = math.sqrt(m_B)
+    similarity = dot_product/(m_A*m_B)
+    return round(similarity,3)
+    
 def load_img(file_path=""):
     image_path = file_path  # Change this to the path of your image
     image = cv2.imread(image_path)
@@ -42,7 +62,6 @@ def get_embedding(model_tf, img_path=""):
     # # The function `get_tensor()` returns a copy of the tensor data.
     # # Use `tensor()` in order to get a pointer to the tensor.
     output_data = model_tf.get_tensor(output_details[0]['index'])
-    print(output_data)
     return output_data
     # female_pic1 = load_img("../pics/female1-pic.png")
     # female_pic2 = load_img("../pics/female2-pic.png")
@@ -50,11 +69,15 @@ def get_embedding(model_tf, img_path=""):
 
 if __name__ == "__main__":
     interpreter = tf.lite.Interpreter(model_path="mobilenet/mobilefacenet.tflite")
-    female1_pic1_path = "./pics/female1-pic1.png"
+    female1_pic1_path = "./pics/male1-pic1.png"
     embedding_1 = get_embedding(model_tf=interpreter, img_path=female1_pic1_path)
-    female1_pic2_path = "./pics/female1-pic2.png" 
+    female1_pic2_path = "./pics/male1-pic2.png" 
     embedding_2 = get_embedding(model_tf=interpreter, img_path=female1_pic2_path)
-    cosine_loss = tf.keras.losses.CosineSimilarity(axis=1)
-    loss = cosine_loss(embedding_1, embedding_2).numpy()
-    print(loss)
-    #TODO: Calculate Cosine similarity via tensorflow inbuilt or make your own logic 
+    cos_sim_tf = tf_cosine_similarity(embedding_1=embedding_1, embedding_2=embedding_2)
+    print(cos_sim_tf)
+    cos_sim_calc = calc_cosine_similarity(embedding_1=embedding_1, embedding_2=embedding_2)
+    #This if else goes inside React Native code
+    if cos_sim_calc > 0.6:
+        print("Authentication Successful")
+    else:
+        print("Authentication Denied")
