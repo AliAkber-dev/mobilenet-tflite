@@ -1,5 +1,6 @@
 import tensorflow as tf
 import cv2
+
 import numpy as np
 def load_img(file_path=""):
     image_path = file_path  # Change this to the path of your image
@@ -53,5 +54,7 @@ if __name__ == "__main__":
     embedding_1 = get_embedding(model_tf=interpreter, img_path=female1_pic1_path)
     female1_pic2_path = "./pics/female1-pic2.png" 
     embedding_2 = get_embedding(model_tf=interpreter, img_path=female1_pic2_path)
-
+    cosine_loss = tf.keras.losses.CosineSimilarity(axis=1)
+    loss = cosine_loss(embedding_1, embedding_2).numpy()
+    print(loss)
     #TODO: Calculate Cosine similarity via tensorflow inbuilt or make your own logic 
